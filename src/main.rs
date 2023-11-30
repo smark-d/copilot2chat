@@ -13,7 +13,7 @@ static CLIENT: Lazy<Client> = Lazy::new(Client::new); // lazy static client inst
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| App::new().route("/v1/chat/completions", web::post().to(forward)))
-        .bind(("127.0.0.1", 2088))?
+        .bind(("0.0.0.0", 2088))?
         .run()
         .await
 }
