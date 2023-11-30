@@ -3,6 +3,7 @@ use reqwest::StatusCode;
 use std::io::Error;
 
 pub mod util;
+pub mod uuid;
 
 use once_cell::sync::Lazy;
 use reqwest::Client;
