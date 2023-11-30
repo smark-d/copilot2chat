@@ -1,10 +1,48 @@
-## Proxy copilot api to openai's gpt-4 api
+## Proxying Copilot API to OpenAI's GPT-4 API
 
 ### Usage
+
+1. Start the Server
 ```bash
 export GHU_TOKEN=ghu_xxxx; ./copilot2chat
 ```
+2. Server Usage
 
-### How to get GHU_TOKEN ?
+The server can be used in the same way as the OpenAI API, but the endpoint URL to use is `http://127.0.0.1:2088/v1/chat/completions`.
 
-Open this link [!https://cocopilot.org/copilot/token](https://cocopilot.org/copilot/token) and login by github then copy the token.
+Example:
+
+```bash
+curl --location 'http://localhost:2088/v1/chat/completions' \
+--header 'Content-Type: text/plain' \
+--data '{
+    "model": "gpt-4",
+    "messages": [{
+      "role": "user", "content": "write a proxy using rust language"
+    }],
+    "presence_penalty": 0,
+    "stream": false,
+    "temperature": 0.8,
+    "top_p": 1
+  }'
+```
+
+You can also use a third-party client, such as [ChatGPT-Web](https://github.com/Chanzhaoyu/chatgpt-web) or any other client.
+
+Example:
+
+```bash
+docker run \
+  --name chatgpt-web \
+  -d \
+  -p 3002:3002 \
+  -e AUTH_SECRET_KEY=123456 \
+  -e OPENAI_API_KEY='xxxx' \
+  -e OPENAI_API_BASE_URL=http://127.0.0.1:2088 \
+  -e OPENAI_API_MODEL=gpt-4 \
+  chenzhaoyu94/chatgpt-web
+```
+
+### How to Obtain a GHU_TOKEN?
+
+Visit this link [https://cocopilot.org/copilot/token](https://cocopilot.org/copilot/token), log in via GitHub, and then copy the token.
