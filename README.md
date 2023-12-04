@@ -6,6 +6,15 @@
 ```bash
 export GHU_TOKEN=ghu_xxxx; ./copilot2chat
 ```
+
+**Or**
+
+```bash
+sh start.sh start # start the server then input the GHU_TOKEN manually
+sh start.sh stop # stop the server
+sh start.sh restart # restart the server
+```
+
 2. Server Usage
 
 The server can be used in the same way as the OpenAI API, but the endpoint URL to use is `http://127.0.0.1:2088/v1/chat/completions`.
