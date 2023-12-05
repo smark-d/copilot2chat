@@ -16,39 +16,19 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: [armv7-unknown-linux-gnueabihf, aarch64-unknown-linux-gnu]
           override: true
 
-      - name: Install cross compilers
-        run: |
-          sudo apt-get update
-          sudo apt-get install gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
-
-      - name: Build for x86
+      - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: build
           args: --release
-      
-      - name: Build for ARMv7
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --target=armv7-unknown-linux-gnueabihf
 
-      - name: Build for ARMv8
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --target=aarch64-unknown-linux-gnu
-
-      - name: Create Zip files
+      - name: Create Zip file
         run: |
           cp ./start.sh ./target/release/
           cd ./target/release/
-          zip copilot2chat-release-x86.zip copilot2chat start.sh
-          zip copilot2chat-release-armv7.zip armv7-unknown-linux-gnueabihf/copilot2chat start.sh
-          zip copilot2chat-release-armv8.zip aarch64-unknown-linux-gnu/copilot2chat start.sh
+          zip copilot2chat-release.zip copilot2chat start.sh
 
       - name: Create Release
         id: create_release
@@ -68,28 +48,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/release/copilot2chat-release-x86.zip
-          asset_name: copilot2chat-release-x86.zip
-          asset_content_type: application/zip
-
-      - name: Upload Release Asset for ARMv7
-        id: upload-release-asset-armv7
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/release/copilot2chat-release-armv7.zip
-          asset_name: copilot2chat-release-armv7.zip
-          asset_content_type: application/zip
-
-      - name: Upload Release Asset for ARMv8
-        id: upload-release-asset-armv8
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/release/copilot2chat-release-armv8.zip
-          asset_name: copilot2chat-release-armv8.zip
+          asset_path: ./target/release/copilot2chat-release.zip
+          asset_name: copilot2chat-release.zip
           asset_content_type: application/zip
