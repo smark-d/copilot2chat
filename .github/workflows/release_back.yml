@@ -17,8 +17,13 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: [armv7-unknown-linux-gnueabihf, aarch64-unknown-linux-gnu]
           override: true
+
+      - name: Add ARMv7 target
+        run: rustup target add armv7-unknown-linux-gnueabihf
+
+      - name: Add ARMv8 target
+        run: rustup target add aarch64-unknown-linux-gnu
 
       - name: Install cross compilers
         run: |
