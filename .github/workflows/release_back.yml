@@ -28,7 +28,7 @@ jobs:
       - name: Install cross compilers
         run: |
           sudo apt-get update
-          sudo apt-get install gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu libssl-dev
+          sudo apt-get install gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu libssl-dev pkg-config
 
       - name: Build for x86
         uses: actions-rs/cargo@v1
