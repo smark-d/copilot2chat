@@ -1,4 +1,4 @@
-name: Release
+name: Release_manual
 
 on:
   workflow_dispatch:
@@ -35,18 +35,21 @@ jobs:
         with:
           command: build
           args: --release
+
+      - name: Install cross
+        run: cargo install cross
       
       - name: Build for ARMv7
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --target=armv7-unknown-linux-gnueabihf
+          args: cross build --release --target=armv7-unknown-linux-gnueabihf
 
       - name: Build for ARMv8
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --target=aarch64-unknown-linux-gnu
+          args: cross build --release --target=aarch64-unknown-linux-gnu
 
       - name: Create Zip files
         run: |
