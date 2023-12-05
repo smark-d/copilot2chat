@@ -51,3 +51,41 @@ jobs:
           asset_path: ./target/release/copilot2chat-release.zip
           asset_name: copilot2chat-release.zip
           asset_content_type: application/zip
+
+  build_and_release_arm:
+    runs-on: ubuntu-latest
+    container:
+      image: docker://rustembedded/cross:armv7-unknown-linux-gnueabihf
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: armv7-unknown-linux-gnueabihf
+          override: true
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target=armv7-unknown-linux-gnueabihf
+
+      - name: Create Zip file
+        run: |
+          cp ./start.sh ./target/armv7-unknown-linux-gnueabihf/release/
+          cd ./target/armv7-unknown-linux-gnueabihf/release/
+          zip copilot2chat-release-arm.zip copilot2chat start.sh
+
+      - name: Upload Release Asset
+        id: upload-release-asset-arm
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./target/armv7-unknown-linux-gnueabihf/release/copilot2chat-release-arm.zip
+          asset_name: copilot2chat-release-arm.zip
+          asset_content_type: application/zip
