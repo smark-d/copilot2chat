@@ -1,104 +1,64 @@
-name: Release_manual
+name: build and release
 
 on:
   workflow_dispatch:
-  # push:
-  #   tags:
-  #     - '*'
+  release:
+    types: [ created ]
+
+permissions:
+  contents: write
 
 jobs:
-  build_and_release:
-    runs-on: ubuntu-latest
+  build:
+    name: ${{ matrix.platform.os_name }} with rust ${{ matrix.toolchain }}
+    runs-on: ${{ matrix.platform.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - os_name: Linux-aarch64
+            os: ubuntu-20.04
+            target: aarch64-unknown-linux-musl
+            bin: copilot2chat-linux-arm64
+          - os_name: Linux-x86_64
+            os: ubuntu-20.04
+            target: x86_64-unknown-linux-gnu
+            bin: copilot2chat-linux-amd64
+          - os_name: Windows-x86_64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bin: copilot2chat-amd64.exe
+          - os_name: macOS-x86_64
+            os: macOS-latest
+            target: x86_64-apple-darwin
+            bin: copilot2chat-darwin-amd64
+          - os_name: macOS-aarch64
+            os: macOS-latest
+            target: aarch64-apple-darwin
+            bin: copilot2chat-darwin-arm64
+        toolchain:
+          - stable
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Setup Rust
-        uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v3
+      - name: Build binary
+        uses: houseabsolute/actions-rust-cross@v0
         with:
-          toolchain: stable
-          override: true
-
-      - name: Add ARMv7 target
-        run: rustup target add armv7-unknown-linux-gnueabihf
-
-      - name: Add ARMv8 target
-        run: rustup target add aarch64-unknown-linux-gnu
-
-      - name: Install cross compilers
-        run: |
-          sudo apt-get update
-          sudo apt-get install gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu libssl-dev pkg-config
-
-      - name: Build for x86
-        uses: actions-rs/cargo@v1
+          command: "build"
+          target: ${{ matrix.platform.target }}
+          toolchain: ${{ matrix.toolchain }}
+          args: "--locked --release"
+          strip: true
+      - name: Rename binary (linux and macos)
+        run: mv target/${{ matrix.platform.target }}/release/copilot2chat target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}
+        if: matrix.platform.os_name != 'Windows-x86_64'
+      - name: Rename binary (windows)
+        run: mv target/${{ matrix.platform.target }}/release/copilot2chat.exe target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}
+        if: matrix.platform.os_name == 'Windows-x86_64'
+      - name: Generate SHA-256
+        run: shasum -a 256 target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }} | cut -d ' ' -f 1 > target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}.sha256
+      - name: Release binary and SHA-256 checksum to GitHub
+        uses: softprops/action-gh-release@v1
         with:
-          command: build
-          args: --release
-
-      - name: Install cross
-        run: cargo install cross
-      
-      - name: Build for ARMv7
-        uses: actions-rs/cargo@v1
-        with:
-          command: cross
-          args: build --release --target=armv7-unknown-linux-gnueabihf
-
-      - name: Build for ARMv8
-        uses: actions-rs/cargo@v1
-        with:
-          command: cross
-          args: build --release --target=aarch64-unknown-linux-gnu
-
-      - name: Create Zip files
-        run: |
-          cp ./start.sh ./target/release/
-          cd ./target/release/
-          zip copilot2chat-release-x86.zip copilot2chat start.sh
-          zip copilot2chat-release-armv7.zip armv7-unknown-linux-gnueabihf/copilot2chat start.sh
-          zip copilot2chat-release-armv8.zip aarch64-unknown-linux-gnu/copilot2chat start.sh
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-
-      - name: Upload Release Asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/release/copilot2chat-release-x86.zip
-          asset_name: copilot2chat-release-x86.zip
-          asset_content_type: application/zip
-
-      - name: Upload Release Asset for ARMv7
-        id: upload-release-asset-armv7
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/release/copilot2chat-release-armv7.zip
-          asset_name: copilot2chat-release-armv7.zip
-          asset_content_type: application/zip
-
-      - name: Upload Release Asset for ARMv8
-        id: upload-release-asset-armv8
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/release/copilot2chat-release-armv8.zip
-          asset_name: copilot2chat-release-armv8.zip
-          asset_content_type: application/zip
+          files: |
+            target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}
+            target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}.sha256
