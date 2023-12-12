@@ -5,6 +5,8 @@
 1. Start the Server
 ```bash
 export GHU_TOKEN=ghu_xxxx; ./copilot2chat
+# or 
+GHU_TOKEN="ghu_xxx" nohup ./copilot2chat &
 ```
 
 **Or**
