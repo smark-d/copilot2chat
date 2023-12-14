@@ -28,5 +28,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ynlbq/copilot2chat:${{ github.ref }}
+          tags: ynlbq/copilot2chat:${{ github.ref_name }}
           build-args: GHU_TOKEN=${{ secrets.GHU_TOKEN }}
