@@ -20,7 +20,8 @@ sh start.sh restart # restart the server
 **Using docker**
   
 ```bash
-docker run --name copilot2chat -dit -p 2088:2088 -e GHU_TOKEN=ghu_xxx ynlbq/copilot2chat:latest
+docker run --name copilot2chat -dit -p 2088:2088 -e GHU_TOKEN=ghu_xxx registry.cn-shenzhen.aliyuncs.com/neoneone/copilot2chat
+
 ```
 
 2. Server Usage
@@ -44,20 +45,16 @@ curl --location 'http://localhost:2088/v1/chat/completions' \
   }'
 ```
 
-You can also use a third-party client, such as [ChatGPT-Web](https://github.com/Chanzhaoyu/chatgpt-web) or any other client.
+You can also use a third-party client, such as [ChatGPT-Next-Web](https://github.com/lvguanjun/ChatGPT-Next-Web) or any other client.
 
 Example:
 
 ```bash
-docker run \
-  --name chatgpt-web \
-  -d \
-  -p 3002:3002 \
-  -e AUTH_SECRET_KEY=123456 \
-  -e OPENAI_API_KEY='xxxx' \
-  -e OPENAI_API_BASE_URL=http://127.0.0.1:2088 \
-  -e OPENAI_API_MODEL=gpt-4 \
-  chenzhaoyu94/chatgpt-web
+docker run -d -p 3000:3000 \
+   -e OPENAI_API_KEY=sk-xxxx \
+   -e CODE=your-password \
+   -e BASE_URL=http://127.0.0.1:2088 \
+  registry.cn-shenzhen.aliyuncs.com/neoneone/chatgpt-next-web
 ```
 
 ### How to Obtain a GHU_TOKEN?
