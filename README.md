@@ -17,6 +17,12 @@ sh start.sh stop # stop the server
 sh start.sh restart # restart the server
 ```
 
+**Using docker**
+  
+```bash
+docker run --name copilot2chat -dit -p 2088:2088 -e GHU_TOKEN=ghu_xxx ynlbq/copilot2chat:latest
+```
+
 2. Server Usage
 
 The server can be used in the same way as the OpenAI API, but the endpoint URL to use is `http://127.0.0.1:2088/v1/chat/completions`.
