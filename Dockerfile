@@ -9,6 +9,8 @@ RUN cargo install --path .
 # Stage 2: Package
 FROM debian:bookworm-slim
 
+RUN apt-get update && apt install -y openssl
+
 COPY --from=builder /usr/local/cargo/bin/copilot2chat /usr/local/bin/copilot2chat
 
 EXPOSE 2088
