@@ -33,7 +33,7 @@ async fn forward(body: web::Bytes) -> Result<impl Responder, Box<dyn std::error:
 
     if res.status().is_success() {
         Ok(HttpResponseBuilder::new(StatusCode::OK)
-            .content_type("application/json")
+            .content_type("text/event-stream; charset=utf-8")
             .streaming(res.bytes_stream()))
     } else {
         Err(Box::new(Error::new(
