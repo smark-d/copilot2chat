@@ -7,7 +7,7 @@ COPY . .
 RUN cargo install --path .
 
 # Stage 2: Package
-FROM rust:slim-buster
+FROM debian:bookworm-slim
 
 COPY --from=builder /usr/local/cargo/bin/copilot2chat /usr/local/bin/copilot2chat
 
