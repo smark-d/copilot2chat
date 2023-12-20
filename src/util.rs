@@ -45,7 +45,7 @@ pub async fn get_headers() -> HeaderMap {
 async fn get_token() -> String {
     // Check if token is valid and was fetched less than 15 minutes ago
     if let Some(ref cached_token) = unsafe {TOKEN.as_ref()} {
-        if cached_token.fetched_at.elapsed().unwrap() < Duration::from_secs(15 * 60) {
+        if cached_token.fetched_at.elapsed().unwrap() < Duration::from_secs(25 * 60) {
             return cached_token.token.clone();
         }
     }
