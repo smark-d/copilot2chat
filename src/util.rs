@@ -20,23 +20,25 @@ struct TokenResponse {
 
 pub async fn get_headers() -> HeaderMap {
     let mut headers: HeaderMap = HeaderMap::new();
+    headers.insert("Host", "api.githubcopilot.com".parse().unwrap());
     headers.insert("Content-Type", "application/json".parse().unwrap());
     headers.insert(
         "Authorization",
         format!("Bearer {}", get_token().await).parse().unwrap(),
     );
     headers.insert("X-Request-Id", uuid::get_request_id().parse().unwrap());
+    headers.insert("X-Github-Api-Version", "2023-07-07".parse().unwrap());
     headers.insert("Vscode-Sessionid", uuid::get_session_id().parse().unwrap());
-    headers.insert("vscode-machineid", uuid::get_machine_id().parse().unwrap());
-    headers.insert("Editor-Version", "vscode/1.84.2".parse().unwrap());
+    headers.insert("Vscode-machineid", uuid::get_machine_id().parse().unwrap());
+    headers.insert("Editor-Version", "vscode/1.85.0".parse().unwrap());
     headers.insert(
         "Editor-Plugin-Version",
-        "copilot-chat/0.10.2".parse().unwrap(),
+        "copilot-chat/0.11.1".parse().unwrap(),
     );
     headers.insert("Openai-Organization", "github-copilot".parse().unwrap());
     headers.insert("Openai-Intent", "conversation-panel".parse().unwrap());
     headers.insert("Content-Type", "application/json".parse().unwrap());
-    headers.insert("User-Agent", "GitHubCopilotChat/0.10.2".parse().unwrap());
+    headers.insert("User-Agent", "GitHubCopilotChat/0.11.1".parse().unwrap());
     headers.insert("Accept", "*/*".parse().unwrap());
     headers.insert("Accept-Encoding", "gzip, deflate, br".parse().unwrap());
     headers
@@ -56,23 +58,22 @@ async fn get_token() -> String {
     let mut headers = HeaderMap::new();
     headers.insert("Host", "api.github.com".parse().unwrap());
     headers.insert("authorization", format!("token {}", ghu_token).parse().unwrap());
-    headers.insert("editor-version", "JetBrains-IU/232.10203.10".parse().unwrap());
-    headers.insert("editor-plugin-version", "copilot-intellij/1.3.3.3572".parse().unwrap());
-    headers.insert("user-agent", "GithubCopilot/1.129.0".parse().unwrap());
+    headers.insert("editor-version", "vscode/1.85.0".parse().unwrap());
+    headers.insert("editor-plugin-version", "copilot-chat/0.11.1".parse().unwrap());
+    headers.insert("user-agent", "GitHubCopilotChat/0.11.1".parse().unwrap());
     headers.insert("accept", "*/*".parse().unwrap());
-
+    
     let client = reqwest::Client::new();
-    let res: TokenResponse = client
+    let resp = client
         .get("https://api.github.com/copilot_internal/v2/token")
         .headers(headers)
         .send()
         .await
-        .unwrap()
-        .json()
-        .await
         .unwrap();
+    crate::log!("get token resp: {:?}", resp);
+    let res = resp.json::<TokenResponse>().await.unwrap();
 
-    // Update the cached token
+    crate::log!("the token is {}", res.token);
     unsafe {
         *TOKEN = Some(CachedToken {
             token: res.token.clone(),
@@ -112,7 +113,7 @@ mod tests {
 
     #[actix_web::test]
     async fn test_get_token() {
-        std::env::set_var("GHU_TOKEN", "ghu_xxx");
+        std::env::set_var("GHU_TOKEN", "ghu_UiXnj5xBxAkudIXvsQNTnVuI04hjhv2VnRIO");
         let token = get_token().await;
         println!("token: {}", token);
         assert_eq!(token, get_token().await);
