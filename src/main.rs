@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_web::{web, App, HttpResponseBuilder, HttpServer, Responder};
 use reqwest::StatusCode;
 use std::io::Error;
@@ -12,14 +13,21 @@ static CLIENT: Lazy<Client> = Lazy::new(Client::new); // lazy static client inst
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| App::new().route("/v1/chat/completions", web::post().to(forward)))
-        .bind(("0.0.0.0", 2088))?
-        .run()
-        .await
+    HttpServer::new(|| {
+        App::new()
+            .wrap(Cors::permissive())
+            .route("/v1/chat/completions", web::post().to(forward))
+    })
+    .bind(("0.0.0.0", 2088))?
+    .run()
+    .await
 }
 
 async fn forward(body: web::Bytes) -> Result<impl Responder, Box<dyn std::error::Error>> {
-    log!("forwarding request to copilot， the request body is: {:?}", body);
+    log!(
+        "forwarding request to copilot， the request body is: {:?}",
+        body
+    );
     let url = "https://api.githubcopilot.com/chat/completions";
 
     let headers = util::get_headers().await;

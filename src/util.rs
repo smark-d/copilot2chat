@@ -70,8 +70,10 @@ async fn get_token() -> String {
         .send()
         .await
         .unwrap();
-    crate::log!("get token resp: {:?}", resp);
-    let res = resp.json::<TokenResponse>().await.unwrap();
+
+    let resp = resp.text().await.unwrap();
+    crate::log!("get token resp: {:?}", resp.clone());
+    let res = serde_json::from_str::<TokenResponse>(&resp).unwrap();
 
     crate::log!("the token is {}", res.token);
     unsafe {
