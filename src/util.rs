@@ -30,7 +30,7 @@ pub async fn get_headers() -> HeaderMap {
     headers.insert("X-Github-Api-Version", "2023-07-07".parse().unwrap());
     headers.insert("Vscode-Sessionid", uuid::get_session_id().parse().unwrap());
     headers.insert("Vscode-machineid", uuid::get_machine_id().parse().unwrap());
-    headers.insert("Editor-Version", "vscode/1.85.0".parse().unwrap());
+    headers.insert("Editor-Version", "vscode/1.85.1".parse().unwrap());
     headers.insert(
         "Editor-Plugin-Version",
         "copilot-chat/0.11.1".parse().unwrap(),
@@ -58,7 +58,7 @@ async fn get_token() -> String {
     let mut headers = HeaderMap::new();
     headers.insert("Host", "api.github.com".parse().unwrap());
     headers.insert("authorization", format!("token {}", ghu_token).parse().unwrap());
-    headers.insert("editor-version", "vscode/1.85.0".parse().unwrap());
+    headers.insert("editor-version", "vscode/1.85.1".parse().unwrap());
     headers.insert("editor-plugin-version", "copilot-chat/0.11.1".parse().unwrap());
     headers.insert("user-agent", "GitHubCopilotChat/0.11.1".parse().unwrap());
     headers.insert("accept", "*/*".parse().unwrap());
